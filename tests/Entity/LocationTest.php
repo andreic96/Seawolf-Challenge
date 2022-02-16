@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Entity;
 
-use App\Entity\Location;
+use App\Entities\Location;
 use App\Exceptions\InvalidCardinalPointException;
 use Test\TestCase;
 
-/** @covers \App\Entity\Location */
+/** @covers Location */
 class LocationTest extends TestCase
 {
     public function testNewLocationThrowsInvalidCardinalPointException(): void

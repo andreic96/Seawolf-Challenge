@@ -30,4 +30,14 @@ class Enemy
     {
         return $this->weapons;
     }
+
+    public function setLocation(Location $location) : void
+    {
+        $this->location = $location;
+    }
+
+    public function getLocation() : string
+    {
+        return $this->location;
+    }
 }

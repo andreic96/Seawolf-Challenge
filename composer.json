@@ -4,12 +4,13 @@
     "type": "project",
     "autoload": {
         "psr-4" : {
-            "App\\" : "src/App/"
+            "App\\" : "src/App/",
+            "Test\\" : "src/Test/"
         }
     },
     "autoload-dev": {
         "psr-4" : {
-            "Tests\\Example\\" : "tests/Example/"
+            "Tests\\Example\\" : "tests/Entity/"
         }
     },
     "require": {

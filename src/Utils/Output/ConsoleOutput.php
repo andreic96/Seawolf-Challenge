@@ -25,25 +25,24 @@ class ConsoleOutput extends AbstractOutput
         fflush($this->stream);
     }
 
-    //TODO replace with a more general method - same for the others
-    public function writeError(string $message) : void
+    public function writeError(string $message, bool $newline = true) : void
     {
-        $this->doWrite("\033[31m$message \033[0m");
+        $this->doWrite("\033[31m$message \033[0m", $newline);
     }
 
-    public function writeInfo(string $message) : void
+    public function writeInfo(string $message, bool $newline = true) : void
     {
-        $this->doWrite("\033[36m$message \033[0m\n");
+        $this->doWrite("\033[36m$message \033[0m", $newline);
     }
 
-    public function writeWarning(string $message) : void
+    public function writeWarning(string $message, bool $newline = true) : void
     {
-        $this->doWrite("\033[33m$message \033[0m\n");
+        $this->doWrite("\033[33m$message \033[0m", $newline);
     }
 
-    public function writeSuccess(string $message) : void
+    public function writeSuccess(string $message, bool $newline = true) : void
     {
-        $this->doWrite("\033[32m$message \033[0m\n");
+        $this->doWrite("\033[32m$message \033[0m", $newline);
     }
 
     /** @return resource */

@@ -2,13 +2,13 @@
 
 namespace App\Validators;
 
+use App\Entities\InputData;
+
 interface InputValidatorInterface
 {
     public static function validateActionInput(?string $actionInput) : void;
 
-    public static function validateDepthInput(?string $depthInput) : void;
+    public static function validateAndReturnOnlyDepthInput(?string $depthInput) : array;
 
-    public static function validateOnlyDepthInput(?string $actionInput) : void;
-
-    public static function validateInput(?string $input) : void;
+    public static function validateAndReturnInput(?string $input) : array;
 }

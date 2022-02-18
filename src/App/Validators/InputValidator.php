@@ -2,52 +2,52 @@
 
 namespace App\Validators;
 
+use App\Entities\Action;
 use App\Exceptions\InvalidActionInputException;
-use App\Exceptions\InvalidDepthInputException;
+use App\Exceptions\InvalidActionTypeException;
 use App\Exceptions\InvalidInputDepthOnlyException;
 use App\Exceptions\InvalidInputException;
 
 class InputValidator implements InputValidatorInterface
 {
-    private const SEA_MAX_LEVEL = 0;
+    public const SEA_MAX_LEVEL = 0;
 
     /**
      * @throws InvalidActionInputException
+     * @throws InvalidActionTypeException
      */
     public static function validateActionInput(?string $actionInput) : void
     {
         if (!is_string($actionInput)) {
             throw new InvalidActionInputException();
         }
-    }
 
-    /**
-     * @throws InvalidDepthInputException
-     */
-    public static function validateDepthInput(?string $depthInput) : void
-    {
-        if (!is_numeric($depthInput) || $depthInput <= 0) {
-            throw new InvalidDepthInputException();
+        if(!in_array($actionInput, Action::ACTIONS)) {
+            throw new InvalidActionTypeException();
         }
     }
 
     /**
      * @throws InvalidInputDepthOnlyException
      */
-    public static function validateOnlyDepthInput(?string $depthInput) : void
+    public static function validateAndReturnOnlyDepthInput(?string $depthInput) : array
     {
-        if (!preg_match('/^\d+/', $depthInput, $depth) || $depth <= self::SEA_MAX_LEVEL) {
+        if (!preg_match('/^\bdive\b \d+/', $depthInput, $depthMatched) || $depthMatched <= self::SEA_MAX_LEVEL) {
             throw new InvalidInputDepthOnlyException();
         }
+
+        return $depthMatched;
     }
 
     /**
      * @throws InvalidInputException
      */
-    public static function validateInput(?string $input) : void
+    public static function validateAndReturnInput(?string $input) : array
     {
-        if (!preg_match('/\w+ \d+/', $input)) {
+        if (!preg_match('/\w+/', $input, $inputMatched)) {
             throw new InvalidInputException();
         }
+
+        return $inputMatched;
     }
 }

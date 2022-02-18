@@ -9,15 +9,35 @@ class Torpedo
     /**
      * @var int
      */
-    private $damagePoints;
+    private $damagePointsMin;
 
-    public function setDamagePoints(int $damagePoints) : void
-    {
-        $this->damagePoints = $damagePoints;
+    /**
+     * @var int
+     */
+    private $damagePointsMax;
+
+    public function __construct(int $damagePointsMin, int $damagePointsMax){
+       $this->setDamagePoints($damagePointsMin, $damagePointsMax);
     }
 
-    public function getDamagePoints() : int
+    public function setDamagePoints(int $damagePointsMin, int $damagePointsMax) : void
     {
-        return $this->damagePoints;
+        $this->damagePointsMin = min($damagePointsMin, $damagePointsMax);
+        $this->damagePointsMax = max($damagePointsMin, $damagePointsMax);
+    }
+
+    public function getDamagePoints() : array
+    {
+        return [$this->damagePointsMin, $this->damagePointsMax];
+    }
+
+    public function getDamagePointsMin() : int
+    {
+        return $this->damagePointsMin;
+    }
+
+    public function getDamagePointsMax() : int
+    {
+        return $this->damagePointsMax;
     }
 }

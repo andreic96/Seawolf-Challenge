@@ -7,28 +7,29 @@ namespace App\Entities;
 class Enemy
 {
     /**
-     * @var array
+     * @var Torpedo
      */
-    private $weapons = [];
+    private $torpedo;
 
     /**
      * @var string
      */
     private $location;
 
-    public function addWeapon(Torpedo $weapon) : void
+    public function __construct(Torpedo $torpedo, Location $location)
     {
-        $this->weapons[] = $weapon;
+        $this->torpedo = $torpedo;
+        $this->location = $location;
     }
 
-    public function setWeapons(array $weapons) : void
+    public function setTorpedo(array $torpedo) : void
     {
-        $this->weapons = $weapons;
+        $this->torpedo = $torpedo;
     }
 
-    public function getWeapons() : array
+    public function getTorpedo() : Torpedo
     {
-        return $this->weapons;
+        return $this->torpedo;
     }
 
     public function setLocation(Location $location) : void
@@ -36,7 +37,7 @@ class Enemy
         $this->location = $location;
     }
 
-    public function getLocation() : string
+    public function getLocation() : Location
     {
         return $this->location;
     }

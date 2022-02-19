@@ -11,6 +11,7 @@ use Utils\Output\OutputInterface;
 
 class AttackManager
 {
+    public const DAMAGE_MULTIPLIER = 2;
     /**
      * @throws InvalidDepthCantFloatAboveWaterException
      */
@@ -35,9 +36,21 @@ class AttackManager
 
         if ($inputData->getActionType() !== $randomCounterActionType) {
             $randomDamagePoints = $this->randomDamagePoints($attack->getEnemy());
+            $totalDamagePoints = $randomDamagePoints * $attack->getDamageMultiplier();
 
-            $attack->getPlayer()->addDamageTaken($randomDamagePoints);
-            $attack->setDamageDealt($randomDamagePoints);
+            $attack->getPlayer()->addDamageTaken($totalDamagePoints);
+            $attack->setDamageDealt($totalDamagePoints);
+        }
+    }
+
+    public function checkToMultiplyDamage(array $attacks, Attack $currentAttack) : void
+    {
+        /** @var Attack $attack */
+        foreach ($attacks as $attack) {
+            if ($attack->hasDamageDealt()) {
+                $currentAttack->setDamageMultiplier(self::DAMAGE_MULTIPLIER);
+                break;
+            }
         }
     }
 

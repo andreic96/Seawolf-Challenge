@@ -135,6 +135,7 @@ class GameManager
                 $attack = new Attack($this->player, $currentEnemy, $this->turn);
                 $this->game->addAttack($attack);
 
+                $this->attackManager->checkToMultiplyDamage($this->game->getAttacks(), $attack);
                 $this->attackManager->doAction($attack, $this->inputData);
                 $this->attackManager->attack($attack, $this->inputData);
                 $this->attackManager->displayDamageDealtMessage($attack, $this->output);

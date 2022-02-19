@@ -4,7 +4,7 @@ namespace App\Entities;
 
 interface ActionableInterface
 {
-    public function float(int $distance) : int;
+    public function float(int $distance) : void;
 
-    public function dive(int $distance) : int;
+    public function dive(int $distance) : void;
 }

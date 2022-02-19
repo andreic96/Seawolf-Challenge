@@ -12,7 +12,7 @@
     },
     "autoload-dev": {
         "psr-4" : {
-            "Tests\\Example\\" : "tests/Entity/"
+            "Tests\\" : "tests/"
         }
     },
     "require": {

@@ -3,7 +3,9 @@
 namespace App\Managers;
 
 use App\Entities\Action;
+use App\Entities\Attack;
 use App\Entities\Enemy;
+use App\Entities\Game;
 use App\Entities\InputData;
 use App\Entities\Location;
 use App\Entities\Player;
@@ -19,9 +21,6 @@ use Utils\Output\OutputInterface;
 
 class GameManager
 {
-    //TODO replace this
-    private const ENEMY_NUMBER = 3;
-
     /** @var InputInterface  */
     private $input;
 
@@ -37,6 +36,15 @@ class GameManager
     /** @var InputData */
     private $inputData;
 
+    /** @var Game */
+    private $game;
+
+    /** @var Player */
+    private $player;
+
+    /** @var array */
+    private $enemies = [];
+
     /** @var int */
     private $turn = 0;
 
@@ -50,12 +58,26 @@ class GameManager
         $this->output = $output;
         $this->inputValidator = $inputValidator;
         $this->attackManager = $attackManager;
+
+        $this->game = new Game();
     }
 
     public function run() : void
     {
         $this->displayWelcomeMessages();
 
+        $this->initPlayer();
+        $this->initEnemies();
+
+        $this->playFirstTurn();
+        $this->playGame();
+
+        $this->output->writeInfo(sprintf('Final depth: %s', $this->player->getCurrentDepth()));
+        $this->output->writeInfo(sprintf('Damage taken: %s', $this->player->getDamageTaken()));
+    }
+
+    private function initPlayer() : void
+    {
         $actions = [];
         try {
             $actionFloat = new Action(Action::ACTION_FLOAT, 1, 45);
@@ -65,8 +87,11 @@ class GameManager
             $this->output->writeError($e->getMessage());
         }
 
-        $player = new Player($actions);
+        $this->player = new Player($actions);
+    }
 
+    private function initEnemies() : void
+    {
         $weaponEnemyW = new Torpedo(1, 5);
         $locationEnemyW = new Location(Location::WEST);
         $enemyW = new Enemy($weaponEnemyW, $locationEnemyW);
@@ -79,60 +104,77 @@ class GameManager
         $locationEnemyN = new Location(Location::NORTH);
         $enemyN = new Enemy($weaponEnemyN, $locationEnemyN);
 
-        $enemies = [$enemyW, $enemyE, $enemyN];
+        $this->enemies = [$enemyW, $enemyE, $enemyN];
+    }
 
-        $inputLine = $this->input->getLine();
-        $this->inputData = $this->getInputDataDepth($inputLine);
-        $player->dive($this->inputData->getActionDepth());
-
-        // Game loop
-        while ($this->turn < count($enemies)) {
+    private function playFirstTurn() : void
+    {
+        while (true) {
+            $inputLine = $this->input->getLine();
             try {
-                $this->displayTurnMessages($player);
+                $this->inputData = $this->getInputDataDepth($inputLine);
+                $this->player->dive($this->inputData->getActionDepth());
+                break;
+            } catch (InvalidInputDepthOnlyException $e) {
+                $this->output->writeError($e->getMessage());
+            }
+        }
+    }
 
+    private function playGame() : void
+    {
+        // Game loop
+        while ($this->keepGameAlive()) {
+            try {
                 /** @var Enemy $currentEnemy */
-                $currentEnemy = $enemies[$this->turn];
+                $currentEnemy = $this->enemies[$this->turn];
 
-                $this->output->writeInfo(sprintf('You are being hit from the %s with a missile, what is your action, Captain ?', $currentEnemy->getLocation()));
+                $this->displayTurnMessages($this->player, $currentEnemy->getLocation());
+                $this->setInput();
 
-                $inputLine = $this->input->getLine();
-                $this->inputData = $this->getInputData($inputLine);
-                $this->inputValidator::validateActionInput($this->inputData->getActionType());
+                $attack = new Attack($this->player, $currentEnemy, $this->turn);
+                $this->game->addAttack($attack);
 
-                $this->attackManager->doAction($player, $this->inputData);
-                $damageDealt = $this->attackManager->attack($currentEnemy, $player, $this->inputData);
-                if ($damageDealt) {
-                    //TODO get depth float/dive
-                    $this->output->writeWarning(sprintf('Incorrect :( You’ve taken %s damage points, diving %sm', $damageDealt, 1));
-                } else {
-                    //TODO get depth float/dive
-                    $this->output->writeSuccess(sprintf('Correct ! You dodged the hit, diving %sm.', 1));
-                }
+                $this->attackManager->doAction($attack, $this->inputData);
+                $this->attackManager->attack($attack, $this->inputData);
+                $this->attackManager->displayDamageDealtMessage($attack, $this->output);
 
                 $this->turn++;
             } catch (
-                InvalidInputException | InvalidInputDepthOnlyException |
-                InvalidActionTypeException | InvalidDepthOutOfRangeException |
-                InvalidDepthCantFloatAboveWaterException $e
+            InvalidInputException | InvalidActionTypeException |
+            InvalidDepthOutOfRangeException | InvalidDepthCantFloatAboveWaterException $e
             ) {
                 $this->output->writeError($e->getMessage());
             }
         }
+    }
 
-        $this->output->writeInfo(sprintf('Final depth: %s', $player->getCurrentDepth()));
-        $this->output->writeInfo(sprintf('Damage taken: %s', $player->getDamageTaken()));
+    private function keepGameAlive() : bool
+    {
+        return $this->turn < count($this->enemies);
     }
 
     private function displayWelcomeMessages() : void
     {
         $this->output->writeSuccess('Ahoy! Welcome aboard of USS Nautilus! Currently located at 42°40\'04.4"N 175°35\'28.3”W');
-        $this->output->writeInfo(sprintf('Your sonar has detected %s enemy submarines coming at you!', self::ENEMY_NUMBER));
+        $this->output->writeInfo(sprintf('Your sonar has detected %s enemy submarines coming at you!', $this->getEnemyCount()));
         $this->output->writeInfo('Take evasive actions to save your ship! Your first action is to dive. Please input the depth in meters (any depth):');
     }
 
-    private function displayTurnMessages(Player $player) : void
+    private function displayTurnMessages(Player $player, Location $location) : void
     {
         $this->output->writeInfo(sprintf('Your current depth is %s', $player->getCurrentDepth()));
+        $this->output->writeInfo(sprintf(
+            'You are being hit from the %s with a missile, what is your action, Captain ?',
+            $location
+        ));
+    }
+
+    private function setInput() : void
+    {
+        $inputLine = $this->input->getLine();
+        $this->inputData = $this->getInputData($inputLine);
+        $this->inputValidator::validateActionInput($this->inputData->getActionType());
     }
 
     private function getInputDataDepth(string $inputLine) : InputData
@@ -149,5 +191,10 @@ class GameManager
         $inputParts = explode(' ', $matchesInputFormat[0]);
 
         return new InputData($inputParts[0]);
+    }
+
+    private function getEnemyCount() : int
+    {
+        return count($this->enemies);
     }
 }

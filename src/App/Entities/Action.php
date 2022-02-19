@@ -15,6 +15,7 @@ class Action
         self::ACTION_FLOAT,
         self::ACTION_DIVE,
     ];
+
     /**
      * @var string
      */

@@ -75,24 +75,20 @@ class Player implements ActionableInterface
         $this->damageTaken += $damageTaken;
     }
 
-    public function dive(int $distance) : int
+    public function dive(int $distance) : void
     {
         $this->currentDepth += $distance;
-
-        return $distance;
     }
 
     /**
      * @throws InvalidDepthCantFloatAboveWaterException
      */
-    public function float(int $distance) : int
+    public function float(int $distance) : void
     {
-        if ($this->currentDepth == 0 || $this->currentDepth + $distance <= 0) {
+        if ($this->currentDepth == 0 || $this->currentDepth - $distance <= 0) {
             throw new InvalidDepthCantFloatAboveWaterException();
         }
 
-        $this->currentDepth += $distance;
-
-        return $distance;
+        $this->currentDepth -= $distance;
     }
 }

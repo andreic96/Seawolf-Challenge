@@ -1,0 +1,10 @@
+{
+    "float": {
+        "minValue": 1,
+        "maxValue": 45
+    },
+    "dive": {
+        "minValue": 5,
+        "maxValue": 75
+    }
+}

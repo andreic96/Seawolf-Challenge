@@ -2,6 +2,7 @@
 
 namespace App\Managers;
 
+use Traversable;
 use App\Entities\Action;
 use App\Entities\Attack;
 use App\Entities\Enemy;
@@ -84,16 +85,7 @@ class GameManager
 
     private function initPlayer() : void
     {
-        $actions = [];
-        try {
-            $actionFloat = new Action(Action::ACTION_FLOAT, 1, 45);
-            $actionDive = new Action(Action::ACTION_DIVE, 5, 75);
-            $actions = [$actionFloat, $actionDive];
-        } catch (InvalidActionTypeException $e) {
-            $this->output->writeError($e->getMessage());
-        }
-
-        $this->player = new Player($actions);
+        $this->player = new Player($this->getActions());
     }
 
     private function initEnemies() : void
@@ -109,6 +101,20 @@ class GameManager
             } catch (InvalidCardinalPointException $e) {
                 $this->output->writeError($e->getMessage());
             }
+        }
+    }
+
+    private function getActions() : Traversable
+    {
+        $actionsFile = $this->file->load(__DIR__ . '/../Settings/actions.json');
+        $actionSettings = json_decode($actionsFile->read(), true);
+
+        try {
+            foreach ($actionSettings as $key => $action) {
+                yield new Action($key, $action['minValue'], $action['maxValue']);
+            }
+        } catch (InvalidActionTypeException $e) {
+            $this->output->writeError($e->getMessage());
         }
     }
 
@@ -171,7 +177,7 @@ class GameManager
     {
         $this->output->writeInfo(sprintf('Your current depth is %s', $player->getCurrentDepth()));
         $this->output->writeInfo(sprintf(
-            'You are being hit from the %s with a missile, what is your action, Captain ?',
+            'You are being hit from the %s with a missile, what is your action, Captain? You can float or dive',
             $location
         ));
     }

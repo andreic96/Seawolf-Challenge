@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Entities;
 
 use App\Exceptions\InvalidDepthCantFloatAboveWaterException;
+use Traversable;
 
 class Player implements ActionableInterface
 {
@@ -23,7 +24,7 @@ class Player implements ActionableInterface
      */
     private $damageTaken = 0;
 
-    public function __construct(array $actions)
+    public function __construct(Traversable $actions)
     {
         $this->setActions($actions);
     }
@@ -48,7 +49,7 @@ class Player implements ActionableInterface
         return $this->actions[$actionType];
     }
 
-    public function setActions(array $actions) : void
+    public function setActions(Traversable $actions) : void
     {
         foreach ($actions as $action) {
             $this->addAction($action);

@@ -1,0 +1,23 @@
+[
+        {
+            "torpedo": {
+                "minDamagePoints": 1,
+                "maxDamagePoints": 5
+            },
+            "location": "W"
+        },
+        {
+            "torpedo": {
+                "minDamagePoints": 7,
+                "maxDamagePoints": 14
+            },
+            "location": "E"
+        },
+        {
+            "torpedo": {
+                "minDamagePoints": 9,
+                "maxDamagePoints": 22
+            },
+            "location": "N"
+        }
+]

@@ -11,11 +11,13 @@ use App\Entities\Location;
 use App\Entities\Player;
 use App\Entities\Torpedo;
 use App\Exceptions\InvalidActionTypeException;
+use App\Exceptions\InvalidCardinalPointException;
 use App\Exceptions\InvalidDepthCantFloatAboveWaterException;
 use App\Exceptions\InvalidDepthOutOfRangeException;
 use App\Exceptions\InvalidInputDepthOnlyException;
 use App\Exceptions\InvalidInputException;
 use App\Validators\InputValidatorInterface;
+use Utils\File\File;
 use Utils\Input\InputInterface;
 use Utils\Output\OutputInterface;
 
@@ -48,6 +50,9 @@ class GameManager
     /** @var int */
     private $turn = 0;
 
+    /** @var File */
+    private $file;
+
     public function __construct(
         InputInterface $input,
         OutputInterface $output,
@@ -60,6 +65,7 @@ class GameManager
         $this->attackManager = $attackManager;
 
         $this->game = new Game();
+        $this->file = new File();
     }
 
     public function run() : void
@@ -92,19 +98,18 @@ class GameManager
 
     private function initEnemies() : void
     {
-        $weaponEnemyW = new Torpedo(1, 5);
-        $locationEnemyW = new Location(Location::WEST);
-        $enemyW = new Enemy($weaponEnemyW, $locationEnemyW);
+        $enemiesSettingsFile = $this->file->load(__DIR__ . '/../Settings/enemies.json');
+        $enemies = json_decode($enemiesSettingsFile->read(), true);
 
-        $weaponEnemyE = new Torpedo(7, 14);
-        $locationEnemyE = new Location(Location::EAST);
-        $enemyE = new Enemy($weaponEnemyE, $locationEnemyE);
-
-        $weaponEnemyN = new Torpedo(9, 22);
-        $locationEnemyN = new Location(Location::NORTH);
-        $enemyN = new Enemy($weaponEnemyN, $locationEnemyN);
-
-        $this->enemies = [$enemyW, $enemyE, $enemyN];
+        foreach ($enemies as $enemy) {
+            try {
+                $enemyTorpedo = new Torpedo($enemy['torpedo']['minDamagePoints'], $enemy['torpedo']['maxDamagePoints']);
+                $enemyLocation = new Location($enemy['location']);
+                $this->enemies[] = new Enemy($enemyTorpedo, $enemyLocation);
+            } catch (InvalidCardinalPointException $e) {
+                $this->output->writeError($e->getMessage());
+            }
+        }
     }
 
     private function playFirstTurn() : void

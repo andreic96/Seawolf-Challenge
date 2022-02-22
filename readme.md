@@ -1,6 +1,5 @@
 <div style="text-align: center;background-color: black; color: rgb(86, 193, 255); height: 100px;">
-<h1>Seawolf</h1>
-<h3 style="padding: 0;">challenge</h3>
+<h1>Seawolf challenge</h1>
 </div>
 
 ## Prerequisites
@@ -9,7 +8,7 @@
 ## Installation
 1. Clone the repo
  ```sh
-   git clone https://github.com/andreic96/Seawolf-Challenge
+   git clone https://github.com/andreic96/seawolf-challenge
    ```
 2. Install PHP packages
 ```bash

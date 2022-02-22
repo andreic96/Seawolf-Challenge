@@ -79,8 +79,8 @@ class GameManager
         $this->playFirstTurn();
         $this->playGame();
 
-        $this->output->writeInfo(sprintf('Final depth: %s', $this->player->getCurrentDepth()));
-        $this->output->writeInfo(sprintf('Damage taken: %s', $this->player->getDamageTaken()));
+        $this->displayAttacks($this->game->getAttacks());
+        $this->displayEndGameMessages();
     }
 
     private function initPlayer() : void
@@ -95,7 +95,11 @@ class GameManager
 
         foreach ($enemies as $enemy) {
             try {
-                $enemyTorpedo = new Torpedo($enemy['torpedo']['minDamagePoints'], $enemy['torpedo']['maxDamagePoints']);
+                $enemyTorpedo = new Torpedo(
+                    $enemy['torpedo']['name'],
+                    $enemy['torpedo']['minDamagePoints'],
+                    $enemy['torpedo']['maxDamagePoints']
+                );
                 $enemyLocation = new Location($enemy['location']);
                 $this->enemies[] = new Enemy($enemyTorpedo, $enemyLocation);
             } catch (InvalidCardinalPointException $e) {
@@ -180,6 +184,33 @@ class GameManager
             'You are being hit from the %s with a missile, what is your action, Captain? You can float or dive',
             $location
         ));
+    }
+
+    private function displayAttacks(array $attacks) : void
+    {
+        $this->output->writeln("Attacks: ");
+
+        /** @var Attack $attack */
+        foreach ($attacks as $key => $attack) {
+            $this->output->write(sprintf(
+                'Attack #%s, came from %s, and used a torpedo %s, ',
+                $key + 1,
+                $attack->getEnemy()->getLocation(),
+                $attack->getEnemy()->getTorpedo()->getName(),
+            ));
+
+            if ($attack->hasDamageDealt()) {
+                $this->output->writeError(sprintf('dealing %s damage.', $attack->getDamageDealt()));
+            } else {
+                $this->output->writeSuccess('being dodged.');
+            }
+        }
+    }
+
+    private function displayEndGameMessages() : void
+    {
+        $this->output->writeInfo(sprintf('Final depth: %s', $this->player->getCurrentDepth()));
+        $this->output->writeInfo(sprintf('Damage taken: %s', $this->player->getDamageTaken()));
     }
 
     private function setInput() : void

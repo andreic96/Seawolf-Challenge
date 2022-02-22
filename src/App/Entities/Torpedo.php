@@ -7,6 +7,11 @@ namespace App\Entities;
 class Torpedo
 {
     /**
+     * @var string
+     */
+    private $name;
+
+    /**
      * @var int
      */
     private $damagePointsMin;
@@ -16,8 +21,19 @@ class Torpedo
      */
     private $damagePointsMax;
 
-    public function __construct(int $damagePointsMin, int $damagePointsMax){
-       $this->setDamagePoints($damagePointsMin, $damagePointsMax);
+    public function __construct(string $name, int $damagePointsMin, int $damagePointsMax){
+        $this->setName($name);
+        $this->setDamagePoints($damagePointsMin, $damagePointsMax);
+    }
+
+    public function setName(string $name) : void
+    {
+        $this->name = $name;
+    }
+
+    public function getName() : string
+    {
+        return $this->name;
     }
 
     public function setDamagePoints(int $damagePointsMin, int $damagePointsMax) : void

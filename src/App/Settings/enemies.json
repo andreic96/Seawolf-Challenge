@@ -1,6 +1,7 @@
 [
         {
             "torpedo": {
+                "name": "class A",
                 "minDamagePoints": 1,
                 "maxDamagePoints": 5
             },
@@ -8,6 +9,7 @@
         },
         {
             "torpedo": {
+                "name": "class B",
                 "minDamagePoints": 7,
                 "maxDamagePoints": 14
             },
@@ -15,6 +17,7 @@
         },
         {
             "torpedo": {
+                "name": "class C",
                 "minDamagePoints": 9,
                 "maxDamagePoints": 22
             },
